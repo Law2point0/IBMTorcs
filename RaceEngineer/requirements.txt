@@ -1,4 +1,5 @@
 ollama
 httpx
-SpeechRecognition
-PyAudio
+sounddevice
+vosk
+numpy
