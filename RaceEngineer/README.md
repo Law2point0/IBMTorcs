@@ -1,6 +1,7 @@
 # Race Engineer
 
-## Building (MacOS)
+## Building 
 
-1. `brew install portaudio`
-2. `python3 -m pip install -r requirements.txt`
+Run this to install the required depenendencies.
+
+`python3 -m pip install -r requirements.txt`
