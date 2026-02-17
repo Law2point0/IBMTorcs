@@ -1,7 +1,7 @@
 import ollama
 from ollama import ResponseError
 import httpx
-from ...torcs_jm_par import get_snapshot_data
+# from ...torcs_jm_par import get_snapshot_data
 
 MODEL = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M' # Granite 4.0 Tiny
 AI_PROMPT = 'You are a race engineer. Keep to 1-3 small, simple sentences. You will be provided with data from the simulation. Comment like you are a real engineer, do not talk in terms of variables or data.'
@@ -43,7 +43,7 @@ def main():
           },
           {
             'role': 'user',
-            'content': f'{prompt}\n\nSnapshot TORCS data: {get_snapshot_data()}'
+            'content': f'{prompt}\n\nSnapshot TORCS data: {EXAMPLE_TELEMETRY}'
           }
         ],
         stream=True

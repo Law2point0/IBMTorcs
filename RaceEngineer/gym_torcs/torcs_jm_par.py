@@ -543,10 +543,11 @@ def drive_loop():
 
 
 # ================= MAIN LOOP =================
-from race_engineer2 import prompt_model
+from RaceEngineer.gym_torcs.race_engineer import prompt_model
 
 if __name__ == "__main__":
     try:
+        print('Press Ctrl+C to stop the program after the race has finished.')
         driving_thread = threading.Thread(target=drive_loop)
         driving_thread.start()
 
