@@ -1,0 +1,13 @@
+Turn	Common Name	Distance from Start (approx.)
+Turn 1	Andretti Hairpin kink (fast left)	~300 m
+Turn 2	Andretti Hairpin	~420 m
+Turn 3	—	~820 m
+Turn 4	—	~1,050 m
+Turn 5	—	~1,300 m
+Turn 6	—	~1,600 m
+Turn 7	—	~2,050 m
+Turn 8	Corkscrew (left)	~2,300 m
+Turn 8A	Corkscrew (right)	~2,360 m
+Turn 9	Rainey Curve	~2,750 m
+Turn 10	—	~3,150 m
+Turn 11	Final hairpin	~3,450 m
