@@ -1,5 +1,7 @@
 ollama
 httpx
-sounddevice
-vosk
-numpy
+faster-whisper 
+sounddevice 
+numpy 
+scipy 
+webrtcvad

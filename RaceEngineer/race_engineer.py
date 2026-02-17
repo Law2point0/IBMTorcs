@@ -1,118 +1,96 @@
-import sounddevice as sd
 import queue
-import json
-from vosk import Model, KaldiRecognizer
-import ollama
-from ollama import ResponseError
-import httpx
+import numpy as np
+import sounddevice as sd
+from scipy.io.wavfile import write
+from faster_whisper import WhisperModel
+import tempfile
 
-MODEL_PATH = 'big_model'
-DEVICE_SAMPLE_RATE = int(sd.query_devices(None, 'input')['default_samplerate'])
+
+WAKE_WORD = "computer"
+MODEL_SIZE = "small"
+
 SAMPLE_RATE = 16000
-WAKE_WORD = 'granite'
+CHANNELS = 1
+
+CHUNK_SECONDS = 1.2
+SILENCE_LIMIT = 1.0
+ENERGY_THRESHOLD = 0.6
+
+model = WhisperModel(MODEL_SIZE, compute_type="int8")
 
 audio_queue = queue.Queue()
 
 
-def audio_callback(indata, frames, time, status):
-  if status:
-    print(status)
-  audio_queue.put(bytes(indata))
+def audio_callback(indata, frames, time_info, status):
+  audio_queue.put(indata.copy())
 
 
-def wait_for_wake_word(recognizer):
-  print(f'Listening for {WAKE_WORD}...')
+def get_audio(seconds):
+  frames_needed = int(SAMPLE_RATE * seconds)
+  frames = []
 
-  if 0:
-    while True:
-      data = audio_queue.get()
+  while sum(len(f) for f in frames) < frames_needed:
+    frames.append(audio_queue.get()) 
 
-      if recognizer.AcceptWaveform(data):
-        result = json.loads(recognizer.Result())
-        text = result.get('text', '').strip()
-
-        if WAKE_WORD in text:
-          return
-  else:
-    while True:
-      data = audio_queue.get()
-
-      if recognizer.AcceptWaveform(data):
-        result = json.loads(recognizer.Result())
-        text = result.get('text', '').strip()
-        print(f'[DEBUG final] "{text}"')
-
-        if WAKE_WORD in text:
-          print(f'[DEBUG partial] "{text}"')
-          return
+  return np.concatenate(frames).flatten()
 
 
-def listen_for_command(recognizer):
-  last_partial = ''
+def rms_energy(audio):
+  return np.sqrt(np.mean(audio**2))
+
+
+def transcribe(audio):
+  with tempfile.NamedTemporaryFile(suffix=".wav") as f:
+    write(f.name, SAMPLE_RATE, audio)
+    segments, _ = model.transcribe(f.name)
+    return " ".join(seg.text for seg in segments).lower()
+
+
+def record_until_silence():
+  recorded = []
+  silence_time = 0
 
   while True:
-    data = audio_queue.get()
+    chunk = get_audio(0.2)
+    energy = rms_energy(chunk)
 
-    if recognizer.AcceptWaveform(data):
-      result = json.loads(recognizer.Result())
-      print()
-      return result.get('text', '').strip()
-
+    if energy > ENERGY_THRESHOLD:
+      recorded.append(chunk)
+      silence_time = 0
     else:
-      partial = json.loads(recognizer.PartialResult()).get('partial', '')
+      silence_time += 0.2
+      if silence_time >= SILENCE_LIMIT:
+        break
 
-      if partial != last_partial:
-        print("\r" + partial, end="", flush=True)
-        last_partial = partial
+  if not recorded:
+    return None
+
+  return np.concatenate(recorded)
 
 
-def ask_granite(text):
-  try:
-    response = ollama.chat(
-      model='hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M',
-      messages=[
-        {
-          'role': 'system',
-          'content': 'You are a race engineer who will provide coaching tips based off of a stream of telemetry data from TORCS. Please provide short responses on what the car should do.'
-        },
-        {
-          'role': 'user',
-          'content': text
-        }
-      ],
-      stream=True
-    )
+def main():
+  with sd.InputStream(
+    samplerate=SAMPLE_RATE,
+    channels=CHANNELS,
+    callback=audio_callback,
+    blocksize=1024,
+  ):
+    while True:
+      chunk = get_audio(CHUNK_SECONDS)
+      text = transcribe(chunk)
 
-    for chunk in response:
-      print(chunk['message']['content'], end='', flush=True)
+      if text:
+        print("Heard:", text)
 
-    print('\n')
-  except ResponseError:
-    print('Ollama error, make sure you have pulled granite using: ollama pull hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M')
-  except httpx.ConnectError:
-    print('Ollama error, make sure ollama is running in the background.')
+      if WAKE_WORD in text:
+        print("Wake word detected!")
 
+        command_audio = record_until_silence()
+        if command_audio is not None:
+          command = transcribe(command_audio)
+          print("Command:", command)
+
+        print("\nWaiting for wake word...\n")
 
 if __name__ == "__main__":
-  try:
-    print(f'Device sample rate: {DEVICE_SAMPLE_RATE} Sample rate: {SAMPLE_RATE}')
-    model = Model(MODEL_PATH)
-
-    recognizer = KaldiRecognizer(model, SAMPLE_RATE)
-
-    with sd.RawInputStream(
-      samplerate=SAMPLE_RATE,
-      blocksize=8000,
-      dtype='int16',
-      channels=1,
-      callback=audio_callback
-    ):
-      while True:
-        wait_for_wake_word(recognizer)
-
-        command = listen_for_command(recognizer)
-
-        if command and command != WAKE_WORD:
-          ask_granite(command) 
-  except KeyboardInterrupt:
-    print('Exiting...')
+  main()
