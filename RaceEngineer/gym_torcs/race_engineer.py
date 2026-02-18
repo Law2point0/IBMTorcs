@@ -1,10 +1,10 @@
 import ollama
 from ollama import ResponseError
 
-MODEL = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M' # Granite 4.0 Tiny
+#MODEL = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M' # Granite 4.0 Tiny
+MODEL = 'hf.co/ibm-granite/granite-4.0-micro-GGUF:Q4_K_M'
 AI_PROMPT = 'You are a race engineer. Keep to 1-3 small, simple sentences, response time is very important so keep it short. You will be provided with data from the car. Comment like you are a real engineer, do not talk in terms of variables or data.'
-AI_PROMPT2 = 'You are a race engineer. Do not talk about the simulation data, reply with simple english, response time matters so be as direct as possible whilst still forming proper sentences.'
-EXAMPLE_TELEMETRY = "{'angle': -2.74844, 'curLapTime': 21.028, 'damage': 285.0, 'distFromStart': 471.785, 'distRaced': 481.785, 'fuel': 93.6591, 'gear': 1.0, 'lastLapTime': 0.0, 'opponents': [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0], 'racePos': 1.0, 'rpm': 942.478, 'speedX': 0.0840397, 'speedY': -0.0265828, 'speedZ': 0.000484125, 'track': [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], 'trackPos': -7.46846, 'wheelSpinVel': [0.0, 0.0, 0.0, 0.0], 'z': 0.338315, 'focus': [-1.0, -1.0, -1.0, -1.0, -1.0]}"
+#EXAMPLE_TELEMETRY = "{'angle': -2.74844, 'curLapTime': 21.028, 'damage': 285.0, 'distFromStart': 471.785, 'distRaced': 481.785, 'fuel': 93.6591, 'gear': 1.0, 'lastLapTime': 0.0, 'opponents': [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0], 'racePos': 1.0, 'rpm': 942.478, 'speedX': 0.0840397, 'speedY': -0.0265828, 'speedZ': 0.000484125, 'track': [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], 'trackPos': -7.46846, 'wheelSpinVel': [0.0, 0.0, 0.0, 0.0], 'z': 0.338315, 'focus': [-1.0, -1.0, -1.0, -1.0, -1.0]}"
 
 
 def prompt_model(prompt, data):

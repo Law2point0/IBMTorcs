@@ -543,7 +543,7 @@ def drive_loop():
 
 
 # ================= MAIN LOOP =================
-from RaceEngineer.gym_torcs.race_engineer import prompt_model
+from race_engineer import prompt_model
 
 if __name__ == "__main__":
     try:
