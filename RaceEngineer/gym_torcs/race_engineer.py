@@ -1,5 +1,6 @@
 import ollama
 from ollama import ResponseError
+from httpx import ConnectError
 
 #MODEL = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M' # Granite 4.0 Tiny
 MODEL = 'hf.co/ibm-granite/granite-4.0-micro-GGUF:Q4_K_M'
@@ -8,22 +9,27 @@ AI_PROMPT = 'You are a race engineer. Keep to 1-3 small, simple sentences, respo
 
 
 def prompt_model(prompt, data):
-  response = ollama.chat(
-    model=MODEL,
-    messages=[
-      {
-        'role': 'system',
-        'content': AI_PROMPT
-      },
-      {
-        'role': 'user',
-        'content': f'{prompt}\n{data}'
-      }
-    ],
-    stream=True
-  )
+  try:
+    response = ollama.chat(
+      model=MODEL,
+      messages=[
+        {
+          'role': 'system',
+          'content': AI_PROMPT
+        },
+        {
+          'role': 'user',
+          'content': f'{prompt}\n{data}'
+        }
+      ],
+      stream=True
+    )
 
-  for chunk in response:
-    print(chunk['message']['content'], end='', flush=True)
-  
-  print()
+    for chunk in response:
+      print(chunk['message']['content'], end='', flush=True)
+    
+    print()
+  except ResponseError:
+    print(f'Ollama error, make sure you have pulled granite using: ollama pull {MODEL}')
+  except ConnectError:
+    print('Ollama error, make sure ollama is running in the background.')
