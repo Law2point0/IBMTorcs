@@ -512,7 +512,7 @@ TARGET_SPEED = 300  # Target speed in km/h. Increasing this makes the car go fas
 STEER_GAIN = 5     # Steering sensitivity. Higher values make the car turn more aggressively.
 CENTERING_GAIN = 0.1 # How strongly the car corrects its position toward the center of the track.
 BRAKE_THRESHOLD = 0.05  # Angle threshold for braking. Lower values brake earlier.
-GEAR_SPEEDS = [0, 60, 100, 155, 190, 220]  # Speed thresholds for gear shifting.
+GEAR_SPEEDS = [0, 60, 120, 150, 170, 190, 210, 230, 240, 250, 260]  # Speed thresholds for gear shifting.
 ENABLE_TRACTION_CONTROL = True  # Toggle traction control system. 
 
 # ================= HELPER FUNCTIONS =================
@@ -537,7 +537,7 @@ def shift_gears(S):
     for i, speed in enumerate(GEAR_SPEEDS):
         if S['speedX'] > speed:
             gear = i + 1
-    return min(gear, 6)
+    return min(gear, 11)
 
 def traction_control(S, accel):
     if ENABLE_TRACTION_CONTROL:
@@ -554,6 +554,7 @@ def drive_to_speed(S, R, target_speed, brake_input):
         accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
         accel = max(0.0, min(1.0, accel_decrease_rate))
         R['brake'] = brake_input
+        R['gear'] = shift_gears(S)
 
 def turn_to_corner(S, R, track_pos, steer_angle):
     if track_pos > 0:
@@ -585,7 +586,11 @@ def drive_modular(c):
     R['accel'] = calculate_throttle(S, R)
     R['brake'] = apply_brakes(S)
     R['accel'] = traction_control(S, R['accel'])
-    R['gear'] = shift_gears(S)
+
+    if S['rpm'] > 8000:
+        R['gear'] = shift_gears(S)
+    elif S['rpm'] == 0:
+        R['gear'] = 1
 
     if dist_bounds < 180 : # start line to turn 1
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
@@ -593,23 +598,24 @@ def drive_modular(c):
     if dist_bounds >= 180 and dist_bounds <= 230: # turn 1 code
         turn_to_corner(S, R, 0.9, 0.02)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
-    if dist_bounds > 230 and dist_bounds < 350: # straight to turn 2 
-        turn_to_corner(S, R, -0.08, 0.007)
+    if dist_bounds > 230 and dist_bounds < 300: # straight to turn 2 
+        turn_to_corner(S, R, -0.8, 0.01)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
-    if dist_bounds >= 350 and dist_bounds <= 390: # straight to turn 2 prep
-        drive_to_speed(S, R, 100, 0.35)
+    if dist_bounds >= 300 and dist_bounds <= 390: # straight to turn 2 prep
+        turn_to_corner(S, R, -0.8, 0.03)
+        drive_to_speed(S, R, 100, 0.4)
     if dist_bounds > 390 and dist_bounds < 515: # turn 2 code
         turn_to_corner(S, R, 0.8, 0.15)
         drive_to_speed(S, R, 85, 0.3)
     if dist_bounds >= 515 and dist_bounds <= 600: # kink to turn 3
         turn_to_corner(S, R, -0.8, 0.001)
-        drive_to_speed(S, R, 85, 0.3)
+        drive_to_speed(S, R, 95, 0.3)
     if dist_bounds > 600 and dist_bounds < 730: # straight to turn 3
         turn_to_corner(S, R, 0.8, 0.005)
-        drive_to_speed(S, R, 110, 0.3)
+        drive_to_speed(S, R, 120, 0.3)
     if dist_bounds >= 730 and dist_bounds <= 790: # turn 3 code
         turn_to_corner(S, R, -0.8, 0.075)
-        drive_to_speed(S, R, 100, 0.3)
+        drive_to_speed(S, R, 90, 0.35)
     if dist_bounds > 790 and dist_bounds < 970: # straight to turn 4
         turn_to_corner(S, R, 0.8, 0.01)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
