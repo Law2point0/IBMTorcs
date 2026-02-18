@@ -105,7 +105,7 @@ def run_pipeline(csv_path):
     df = load_and_clean(csv_path)
     laps = split_laps(df)
 
-    results = run_pipeline("telemetry.csv")
+    results = []
 
     for lap_number, lap_df in enumerate(laps, start=1):
         lap_analysis = process_lap(lap_df)
@@ -137,7 +137,7 @@ def save_results(results, output_path):
             rows.append(row)
 
     pd.DataFrame(rows).to_csv(output_path, index=False)
-    
+
 if __name__ == "__main__":
     results = run_pipeline("telemetry.csv")
     save_results(results, "processed_output.csv")
