@@ -626,59 +626,62 @@ def drive_modular(c):
         turn_to_corner(S, R, -0.8, 0.01)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 1425 and dist_bounds < 1450: # turn 5 prep
-        turn_to_corner(S, R, -0.8, 0.075)
-        drive_to_speed(S, R, 90, 0.3)
-    if dist_bounds >= 1450 and dist_bounds < 1550: # turn 5 code
-        turn_to_corner(S, R, 0.8, 0.075)
-        drive_to_speed(S, R, 100, 0.3)
-    if dist_bounds >= 1550 and dist_bounds < 1800: # straight to turn 6
+        turn_to_corner(S, R, -0.8, 0.045)
+        drive_to_speed(S, R, 90, 0.32)
+    if dist_bounds >= 1450 and dist_bounds < 1575: # turn 5 code
+        turn_to_corner(S, R, 0.7, 0.075)
+        drive_to_speed(S, R, 95, 0.3)
+    if dist_bounds >= 1575 and dist_bounds < 1800: # straight to turn 6
         turn_to_corner(S, R, -0.8, 0.005)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 1850 and dist_bounds < 1900: # turn 6 prep
-        turn_to_corner(S, R, -0.8, 0.075)
-        drive_to_speed(S, R, 120, 0.3)
+        turn_to_corner(S, R, -0.8, 0.005)
+        drive_to_speed(S, R, 110, 0.3)
     if dist_bounds >= 1900 and dist_bounds < 1950: # turn 6 code
         turn_to_corner(S, R, 0.8, 0.075)
-        drive_to_speed(S, R, 90, 0.3)
-    if dist_bounds >= 1950 and dist_bounds < 2250: # straight to turn 7/8 (corkscrew)
+        drive_to_speed(S, R, 120, 0.3)
+    if dist_bounds >= 1950 and dist_bounds < 2200: # straight to turn 7/8 (corkscrew)
         turn_to_corner(S, R, -0.8, 0.001)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
-    if dist_bounds >= 2250 and dist_bounds < 2320: # prep for turn 7/8 (corkscrew)
+    if dist_bounds >= 2200 and dist_bounds < 2280: # straight to turn 7/8 (corkscrew)
         turn_to_corner(S, R, -0.8, 0.001)
-        drive_to_speed(S, R, 60, 0.3)
-    if dist_bounds >= 2320 and dist_bounds < 2430: # prep for turn 7/8 (corkscrew)
+        drive_to_speed(S, R, 90, 0.3)
+    if dist_bounds >= 2280 and dist_bounds < 2380: # prep for turn 7/8 (corkscrew)
+        turn_to_corner(S, R, -0.8, 0.001)
+        drive_to_speed(S, R, 40, 0.3)
+    if dist_bounds >= 2380 and dist_bounds < 2430: # prep for turn 7/8 (corkscrew)
         turn_to_corner(S, R, -0.5, 0.01)
-        drive_to_speed(S, R, 30, 0.35)
+        drive_to_speed(S, R, 30, 0.3)
     if dist_bounds >= 2430 and dist_bounds < 2475: # turn 7 code
-        turn_to_corner(S, R, 0.75, 0.075)
+        turn_to_corner(S, R, 0.75, 0.05)
         drive_to_speed(S, R, 20, 0.2)
     if dist_bounds >= 2475 and dist_bounds < 2500: # turn 8 code
         turn_to_corner(S, R, -0.8, 0.05)
         drive_to_speed(S, R, 30, 0.1)
     if dist_bounds >= 2500 and dist_bounds < 2650: # straight to turn 9
-        turn_to_corner(S, R, -0.8, 0.02)
-        drive_to_speed(S, R, 110, 0.3)
-    if dist_bounds >= 2650 and dist_bounds < 2800: # turn 9 code
-        turn_to_corner(S, R, 0.8, 0.045)
+        turn_to_corner(S, R, -0.8, 0.01)
         drive_to_speed(S, R, 120, 0.3)
-    if dist_bounds >= 2800 and dist_bounds < 2900: # straight to turn 10
+    if dist_bounds >= 2650 and dist_bounds < 2800: # turn 9 code
+        turn_to_corner(S, R, 0.8, 0.075)
+        drive_to_speed(S, R, 135, 0.3)
+    if dist_bounds >= 2800 and dist_bounds < 2850: # straight to turn 10
         turn_to_corner(S, R, 0.8, 0.01)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
-    if dist_bounds >= 2900 and dist_bounds < 2950: # turn 10 prep
+    if dist_bounds >= 2850 and dist_bounds < 2920: # turn 10 prep
+        turn_to_corner(S, R, 0.8, 0.075)
+        drive_to_speed(S, R, 120, 0.3)
+    if dist_bounds >= 2920 and dist_bounds < 3000: # turn 10 code
         turn_to_corner(S, R, -0.8, 0.075)
-        drive_to_speed(S, R, 80, 0.3)
-    if dist_bounds >= 2950 and dist_bounds < 3000: # turn 10 code
-        turn_to_corner(S, R, -0.8, 0.075)
-        drive_to_speed(S, R, 50, 0.3)
-    if dist_bounds >= 3000 and dist_bounds < 3150: # straight to turn 11
+        drive_to_speed(S, R, 100, 0.3)
+    if dist_bounds >= 3000 and dist_bounds < 3050: # straight to turn 11
         turn_to_corner(S, R, -0.8, 0.005)
         drive_to_speed(S, R, TARGET_SPEED, 0.3)
-    if dist_bounds >= 3150 and dist_bounds < 3245: # turn 11 prep
+    if dist_bounds >= 3150 and dist_bounds < 3250: # turn 11 prep
         turn_to_corner(S, R, -0.8, 0.02)
-        drive_to_speed(S, R, 40, 0.35)
-    if dist_bounds >= 3245 and dist_bounds < 3275: # turn 11 code
+        drive_to_speed(S, R, 50, 0.35)
+    if dist_bounds >= 3250 and dist_bounds < 3275: # turn 11 code
         turn_to_corner(S, R, 0.7, 0.075)
-        drive_to_speed(S, R, 25, 0.3)
+        drive_to_speed(S, R, 45, 0.3)
     
     return
 
