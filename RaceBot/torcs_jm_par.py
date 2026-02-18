@@ -595,7 +595,7 @@ def drive_modular(c):
             speed_difference = max(0, S['speedX'] - TARGET_SPEED)
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
             accel = max(0.0, min(1.0, accel_decrease_rate))
-    if dist_bounds > 230 and dist_bounds < 350: # straight to turn 2 veer
+    if dist_bounds > 230 and dist_bounds < 350: # straight to turn 2 
         if S['trackPos'] > -0.8:
             steer = S['angle'] - 0.007 * STEER_GAIN
             R['steer'] = steer
@@ -606,8 +606,8 @@ def drive_modular(c):
             speed_difference = max(0, S['speedX'] - TARGET_SPEED)
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
             accel = max(0.0, min(1.0, accel_decrease_rate))
-    if dist_bounds >= 350 and dist_bounds <= 390: # straight to turn 2 
-        target_speed = 110
+    if dist_bounds >= 350 and dist_bounds <= 390: # straight to turn 2 prep
+        target_speed = 100
         if S['speedX'] < target_speed:
             accel_increase_rate = min(1.0, R['accel'] + 0.4)
             accel = max(0.0, accel_increase_rate)
@@ -616,11 +616,11 @@ def drive_modular(c):
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
             R['brake'] = 0.3
-    if dist_bounds > 390 and dist_bounds < 500: # turn 2 code
+    if dist_bounds > 390 and dist_bounds < 515: # turn 2 code
         if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.15 * STEER_GAIN
+            steer = S['angle'] + 0.1 * STEER_GAIN
             R['steer'] = steer
-        target_speed = 90
+        target_speed = 85
         if S['speedX'] < target_speed:
             accel_increase_rate = min(1.0, R['accel'] + 0.4)
             accel = max(0.0, accel_increase_rate)
@@ -629,7 +629,7 @@ def drive_modular(c):
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
             R['brake'] = 0.3
-    if dist_bounds >= 500 and dist_bounds <= 600: # kink to turn 3
+    if dist_bounds >= 515 and dist_bounds <= 600: # kink to turn 3
         if S['trackPos'] > -0.8:
             steer = S['angle'] + 0.001 * STEER_GAIN
             R['steer'] = steer
@@ -721,7 +721,7 @@ def drive_modular(c):
         if S['trackPos'] < 0.8:
             steer = S['angle'] + 0.075 * STEER_GAIN
             R['steer'] = steer
-        target_speed = 110
+        target_speed = 100
         if S['speedX'] < target_speed:
             accel_increase_rate = min(1.0, R['accel'] + 0.4)
             accel = max(0.0, accel_increase_rate)
@@ -729,7 +729,7 @@ def drive_modular(c):
             speed_difference = max(0, S['speedX'] - target_speed)
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+            R['brake'] = 0.2
     if dist_bounds >= 1550 and dist_bounds < 1800: # straight to turn 6
         if S['trackPos'] > -0.8:
             steer = S['angle'] - 0.005 * STEER_GAIN
@@ -768,7 +768,7 @@ def drive_modular(c):
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
             R['brake'] = 0.3
-    if dist_bounds >= 1950 and dist_bounds < 2320: # straight to turn 7/8 (corkscrew)
+    if dist_bounds >= 1950 and dist_bounds < 2250: # straight to turn 7/8 (corkscrew)
         if S['trackPos'] > -0.8:
             steer = S['angle'] - 0.001 * STEER_GAIN
             R['steer'] = steer
@@ -780,12 +780,9 @@ def drive_modular(c):
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
             accel = max(0.0, min(1.0, accel_decrease_rate))
             R['brake'] = 0.3
-    if dist_bounds >= 2320 and dist_bounds < 2410: # prep for turn 7/8 (corkscrew)
-        if S['trackPos'] > 0.7:
+    if dist_bounds >= 2250 and dist_bounds < 2350: # prep for turn 7/8 (corkscrew)
+        if S['trackPos'] > -0.8:
             steer = S['angle'] - 0.001 * STEER_GAIN
-            R['steer'] = steer
-        elif S['trackPos'] < 0.7:
-            steer = S['angle'] + 0.001 * STEER_GAIN
             R['steer'] = steer
         target_speed = 60
         if S['speedX'] < target_speed:
@@ -796,11 +793,14 @@ def drive_modular(c):
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
             R['brake'] = 0.3
-    if dist_bounds >= 2410 and dist_bounds < 2480: # turn 7 code
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.05 * STEER_GAIN
+    if dist_bounds >= 2350 and dist_bounds < 2430: # prep for turn 7/8 (corkscrew)
+        if S['trackPos'] > -0.75:
+            steer = S['angle'] - 0.01 * STEER_GAIN
             R['steer'] = steer
-        target_speed = 25
+        elif S['trackPos'] < -0.75:
+            steer = S['angle'] + 0.001 * STEER_GAIN
+            R['steer'] = steer
+        target_speed = 40
         if S['speedX'] < target_speed:
             accel_increase_rate = min(1.0, R['accel'] + 0.4)
             accel = max(0.0, accel_increase_rate)
@@ -808,12 +808,25 @@ def drive_modular(c):
             speed_difference = max(0, S['speedX'] - target_speed)
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.4
-    if dist_bounds >= 2480 and dist_bounds < 2500: # turn 8 code
+            R['brake'] = 0.3
+    if dist_bounds >= 2430 and dist_bounds < 2475: # turn 7 code
+        if S['trackPos'] < 0.75:
+            steer = S['angle'] + 0.05 * STEER_GAIN
+            R['steer'] = steer
+        target_speed = 20
+        if S['speedX'] < target_speed:
+            accel_increase_rate = min(1.0, R['accel'] + 0.4)
+            accel = max(0.0, accel_increase_rate)
+        else:
+            speed_difference = max(0, S['speedX'] - target_speed)
+            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
+            accel = max(0.0, min(1.0, accel_decrease_rate))
+            R['brake'] = 0.1
+    if dist_bounds >= 2475 and dist_bounds < 2500: # turn 8 code
         if S['trackPos'] > - 0.8:
             steer = S['angle'] - 0.05 * STEER_GAIN
             R['steer'] = steer
-        target_speed = 50
+        target_speed = 30
         if S['speedX'] < target_speed:
             accel_increase_rate = min(1.0, R['accel'] + 0.4)
             accel = max(0.0, accel_increase_rate)
@@ -821,7 +834,7 @@ def drive_modular(c):
             speed_difference = max(0, S['speedX'] - target_speed)
             accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
             accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.2
+            R['brake'] = 0.1
     if dist_bounds >= 2500 and dist_bounds < 2650: # straight to turn 9
         if S['trackPos'] > -0.8:
             steer = S['angle'] - 0.01 * STEER_GAIN
