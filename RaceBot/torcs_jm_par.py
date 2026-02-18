@@ -545,9 +545,27 @@ def traction_control(S, accel):
             accel -= 0.1
     return max(0.0, accel)
 
+def drive_to_speed(S, R, target_speed, brake_input):
+    if S['speedX'] < target_speed:
+        accel_increase_rate = min(1.0, R['accel'] + 0.4)
+        accel = max(0.0, accel_increase_rate)
+    else:
+        speed_difference = max(0, S['speedX'] - target_speed)
+        accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
+        accel = max(0.0, min(1.0, accel_decrease_rate))
+        R['brake'] = brake_input
+
+def turn_to_corner(S, R, track_pos, steer_angle):
+    if track_pos > 0:
+        if S['trackPos'] < track_pos:
+                steer = S['angle'] + steer_angle * STEER_GAIN
+                R['steer'] = steer
+    else:
+        if S['trackPos'] > track_pos:
+                steer = S['angle'] - steer_angle * STEER_GAIN
+                R['steer'] = steer
+
 # ================= MAIN DRIVE FUNCTION =================
-
-
 
 def drive_modular(c):
     S, R = c.S.d, c.R.d
@@ -555,13 +573,7 @@ def drive_modular(c):
     # `get_servers_input` normalizes `S['distRaced']` per lap, so use it directly
     dist_bounds = S['distRaced']
 
-    if S['speedX'] < TARGET_SPEED:
-        accel_increase_rate = min(1.0, R['accel'] + 0.4)
-        accel = max(0.0, accel_increase_rate)
-    else:
-        speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-        accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-        accel = max(0.0, min(1.0, accel_decrease_rate))
+    drive_to_speed(S, R, TARGET_SPEED, 0.3)
     
      # Apply brakes if necessary
     if abs(S['angle']) > BRAKE_THRESHOLD:
@@ -576,368 +588,92 @@ def drive_modular(c):
     R['gear'] = shift_gears(S)
 
     if dist_bounds < 180 : # start line to turn 1
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
 
     if dist_bounds >= 180 and dist_bounds <= 230: # turn 1 code
-        if S['trackPos'] < 0.9:
-            steer = S['angle'] + 0.02 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
+        turn_to_corner(S, R, 0.9, 0.02)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds > 230 and dist_bounds < 350: # straight to turn 2 
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.007 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
+        turn_to_corner(S, R, -0.08, 0.007)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 350 and dist_bounds <= 390: # straight to turn 2 prep
-        target_speed = 100
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        drive_to_speed(S, R, 100, 0.35)
     if dist_bounds > 390 and dist_bounds < 515: # turn 2 code
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.1 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 85
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, 0.8, 0.15)
+        drive_to_speed(S, R, 85, 0.3)
     if dist_bounds >= 515 and dist_bounds <= 600: # kink to turn 3
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] + 0.001 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.001)
+        drive_to_speed(S, R, 85, 0.3)
     if dist_bounds > 600 and dist_bounds < 730: # straight to turn 3
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.005 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 110
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, 0.8, 0.005)
+        drive_to_speed(S, R, 110, 0.3)
     if dist_bounds >= 730 and dist_bounds <= 790: # turn 3 code
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 100
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.075)
+        drive_to_speed(S, R, 100, 0.3)
     if dist_bounds > 790 and dist_bounds < 970: # straight to turn 4
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.01 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, 0.8, 0.01)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 970 and dist_bounds < 1050: # turn 4 code
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.06 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 90
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.06)
+        drive_to_speed(S, R, 90, 0.3)
     if dist_bounds >= 1050 and dist_bounds < 1425: # straight to turn 5
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.01 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.01)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 1425 and dist_bounds < 1450: # turn 5 prep
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 90
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.075)
+        drive_to_speed(S, R, 90, 0.3)
     if dist_bounds >= 1450 and dist_bounds < 1550: # turn 5 code
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 100
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.2
+        turn_to_corner(S, R, 0.8, 0.075)
+        drive_to_speed(S, R, 100, 0.3)
     if dist_bounds >= 1550 and dist_bounds < 1800: # straight to turn 6
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.005 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.005)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 1850 and dist_bounds < 1900: # turn 6 prep
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 120
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.075)
+        drive_to_speed(S, R, 120, 0.3)
     if dist_bounds >= 1900 and dist_bounds < 1950: # turn 6 code
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 90
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, 0.8, 0.075)
+        drive_to_speed(S, R, 90, 0.3)
     if dist_bounds >= 1950 and dist_bounds < 2250: # straight to turn 7/8 (corkscrew)
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.001 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
-    if dist_bounds >= 2250 and dist_bounds < 2350: # prep for turn 7/8 (corkscrew)
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.001 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 60
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
-    if dist_bounds >= 2350 and dist_bounds < 2430: # prep for turn 7/8 (corkscrew)
-        if S['trackPos'] > -0.75:
-            steer = S['angle'] - 0.01 * STEER_GAIN
-            R['steer'] = steer
-        elif S['trackPos'] < -0.75:
-            steer = S['angle'] + 0.001 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 40
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.001)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
+    if dist_bounds >= 2250 and dist_bounds < 2320: # prep for turn 7/8 (corkscrew)
+        turn_to_corner(S, R, -0.8, 0.001)
+        drive_to_speed(S, R, 60, 0.3)
+    if dist_bounds >= 2320 and dist_bounds < 2430: # prep for turn 7/8 (corkscrew)
+        turn_to_corner(S, R, -0.5, 0.01)
+        drive_to_speed(S, R, 30, 0.35)
     if dist_bounds >= 2430 and dist_bounds < 2475: # turn 7 code
-        if S['trackPos'] < 0.75:
-            steer = S['angle'] + 0.05 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 20
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.1
+        turn_to_corner(S, R, 0.75, 0.075)
+        drive_to_speed(S, R, 20, 0.2)
     if dist_bounds >= 2475 and dist_bounds < 2500: # turn 8 code
-        if S['trackPos'] > - 0.8:
-            steer = S['angle'] - 0.05 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 30
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.1
+        turn_to_corner(S, R, -0.8, 0.05)
+        drive_to_speed(S, R, 30, 0.1)
     if dist_bounds >= 2500 and dist_bounds < 2650: # straight to turn 9
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.01 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 110
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.02)
+        drive_to_speed(S, R, 110, 0.3)
     if dist_bounds >= 2650 and dist_bounds < 2800: # turn 9 code
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.045 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 120
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, 0.8, 0.045)
+        drive_to_speed(S, R, 120, 0.3)
     if dist_bounds >= 2800 and dist_bounds < 2900: # straight to turn 10
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.01 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, 0.8, 0.01)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     if dist_bounds >= 2900 and dist_bounds < 2950: # turn 10 prep
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 80
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.075)
+        drive_to_speed(S, R, 80, 0.3)
     if dist_bounds >= 2950 and dist_bounds < 3000: # turn 10 code
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.075 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 50
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
+        turn_to_corner(S, R, -0.8, 0.075)
+        drive_to_speed(S, R, 50, 0.3)
     if dist_bounds >= 3000 and dist_bounds < 3150: # straight to turn 11
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.005 * STEER_GAIN
-            R['steer'] = steer
-        if S['speedX'] < TARGET_SPEED:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - TARGET_SPEED)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / TARGET_SPEED))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.3
-    if dist_bounds >= 3150 and dist_bounds < 3235: # turn 11 prep
-        if S['trackPos'] > -0.8:
-            steer = S['angle'] - 0.02 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 40
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.4
-    if dist_bounds >= 3235 and dist_bounds < 3325: # turn 11 code
-        if S['trackPos'] < 0.8:
-            steer = S['angle'] + 0.09 * STEER_GAIN
-            R['steer'] = steer
-        target_speed = 25
-        if S['speedX'] < target_speed:
-            accel_increase_rate = min(1.0, R['accel'] + 0.4)
-            accel = max(0.0, accel_increase_rate)
-        else:
-            speed_difference = max(0, S['speedX'] - target_speed)
-            accel_decrease_rate = max(0.0, R['accel'] - (0.2 * speed_difference / target_speed))
-            accel = max(0.0, min(1.0, accel_decrease_rate))
-            R['brake'] = 0.4
-    # lap counting and normalization handled in Client.get_servers_input()
+        turn_to_corner(S, R, -0.8, 0.005)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
+    if dist_bounds >= 3150 and dist_bounds < 3245: # turn 11 prep
+        turn_to_corner(S, R, -0.8, 0.02)
+        drive_to_speed(S, R, 40, 0.35)
+    if dist_bounds >= 3245 and dist_bounds < 3275: # turn 11 code
+        turn_to_corner(S, R, 0.7, 0.075)
+        drive_to_speed(S, R, 25, 0.3)
+    
     return
 
 # ================= MAIN LOOP =================
