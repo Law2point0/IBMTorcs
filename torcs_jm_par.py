@@ -1,10 +1,9 @@
-
 import socket
 import sys
 import getopt
 import os
 import time
-import threading
+
 PI= 3.14159265359
 
 data_size = 2**17
@@ -73,7 +72,7 @@ class Client():
         self.stage= 3 # 0=Warm-up, 1=Qualifying 2=Race, 3=unknown <Default=3>
         self.debug= False
         self.maxSteps= 100000  # 50steps/second
-        self.parse_the_command_line()
+        #self.parse_the_command_line()
         if H: self.host= H
         if p: self.port= p
         if i: self.sid= i
@@ -111,10 +110,10 @@ class Client():
                 sockdata,addr= self.so.recvfrom(data_size)
                 sockdata = sockdata.decode('utf-8')
             except socket.error as emsg:
-                print("Waiting for server on %d............" % self.port)
-                print("Count Down : " + str(n_fail))
+                #print("Waiting for server on %d............" % self.port)
+                #print("Count Down : " + str(n_fail))
                 if n_fail < 0:
-                    print("relaunch torcs")
+                    #print("relaunch torcs")
                     os.system('pkill torcs')
                     time.sleep(1.0)
                     if self.vision is False:
@@ -129,7 +128,7 @@ class Client():
 
             identify = '***identified***'
             if identify in sockdata:
-                print("Client connected on %d.............." % self.port)
+                #print("Client connected on %d.............." % self.port)
                 break
 
     def parse_the_command_line(self):
@@ -185,7 +184,7 @@ class Client():
             except socket.error as emsg:
                 print('.', end=' ')
             if '***identified***' in sockdata:
-                print("Client connected on %d.............." % self.port)
+                #print("Client connected on %d.............." % self.port)
                 continue
             elif '***shutdown***' in sockdata:
                 print((("Server has stopped the race on %d. "+
@@ -194,7 +193,7 @@ class Client():
                 self.shutdown()
                 return
             elif '***restart***' in sockdata:
-                print("Server has restarted the race on %d." % self.port)
+                #print("Server has restarted the race on %d." % self.port)
                 self.shutdown()
                 return
             elif not sockdata: # Empty?
@@ -345,9 +344,9 @@ class ServerState():
                 elif k == 'angle':
                     asyms= [
                           "  !  ", ".|'  ", "./'  ", "_.-  ", ".--  ", "..-  ",
-                          "---  ", ".__  ", "-._  ", "'-.  ", "'\.  ", "'|.  ",
+                          "---  ", ".__  ", "-._  ", "'-.  ", "'\\.  ", "'|.  ",
                           "  |  ", "  .|'", "  ./'", "  .-'", "  _.-", "  __.",
-                          "  ---", "  --.", "  -._", "  -..", "  '\.", "  '|."  ]
+                          "  ---", "  --.", "  -._", "  -..", "  '\\.", "  '|."  ]
                     rad= self.d[k]
                     deg= int(rad*180/PI)
                     symno= int(.5+ (rad+PI) / (PI/12) )
@@ -699,27 +698,6 @@ def drive_loop():
     C.shutdown()
 
 # ================= MAIN LOOP =================
-from race_engineer import prompt_model
 
 if __name__ == "__main__":
-    #C = Client(p=3001)
-    #for step in range(C.maxSteps, 0, -1):
-        #C.get_servers_input()
-        #drive_modular(C)
-        #C.respond_to_server()
-    try:
-        print('Press Ctrl+C to stop the program after the race has finished.')
-        driving_thread = threading.Thread(target=drive_loop)
-        driving_thread.start()
-
-        while True:
-            prompt = input('Prompt: ')
-            data = telemetry
-            #print(f'data: {data}')
-            prompt_model(prompt, data)
-    except KeyboardInterrupt:
-        driving_thread.join()
-        print('Exiting...')
-    
-
-    #C.shutdown()
+    drive_loop()
