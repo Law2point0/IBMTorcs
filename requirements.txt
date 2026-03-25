@@ -1,2 +1,4 @@
 ollama
 httpx
+textual
+asyncio

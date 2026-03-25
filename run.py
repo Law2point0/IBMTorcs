@@ -1,29 +1,27 @@
 import sys
-import torcs_jm_par
+import torcs_client
 import race_engineer
 import threading
 
-run_chatbot = True
+run_chatbot = False
 run_commentary = False
 
-driving_thread = threading.Thread(target=torcs_jm_par.drive_loop)
+driving_thread = threading.Thread(target=torcs_client.drive_loop)
 
-HELP = "Usage: python run.py [args ...]\n\t--help: Display this message\n\t--no-chatbot: Run without the Race Engineer/chatbot\n\t--no-commentary: Run without the live procedural commentary\n\t--only-racebot: Only run the racebot"
+HELP = "Usage: python run.py [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n"
 
 
 def main():
   if not run_commentary and not run_chatbot:
-    torcs_jm_par.drive_loop()
+    torcs_client.drive_loop()
   else:
     try:
-      print('Press Ctrl+C to stop the program after the race has finished.')
-
       driving_thread.start()
 
       if run_chatbot:
         while True:
           prompt = input('Prompt: ')
-          data = torcs_jm_par.telemetry
+          data = torcs_client.telemetry
           race_engineer.prompt_model(prompt, data)
     except KeyboardInterrupt:
       print('Exiting...')
@@ -35,16 +33,12 @@ if __name__ == '__main__':
   argv = sys.argv
   argv.remove('run.py')
 
-  if '--no-chatbot' in argv:
-    argv.remove('--no-chatbot')
-    run_chatbot = False
-  if '--no-commentary' in argv:
-    argv.remove('--no-commentary')
-    run_commentary = False
-  if '--only-racebot' in argv:
-    argv.remove('--only-racebot')
-    run_chatbot = False
-    run_commentary = False
+  if '--chatbot' in argv:
+    argv.remove('--chatbot')
+    run_chatbot = True
+  if '--commentary' in argv:
+    argv.remove('--commentary')
+    run_commentary = True
   
   if len(argv) != 0:
     print(HELP)
