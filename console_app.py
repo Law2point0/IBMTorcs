@@ -59,7 +59,7 @@ class IBMTorcsApp(App):
       chatbot_request_queue.put(text)
 
 
-#"""
+"""
 
 import threading
 import race_engineer
@@ -73,4 +73,4 @@ if __name__ == "__main__":
   app.run() # Blocking btw
 
   os._exit(0)
-#"""
+"""

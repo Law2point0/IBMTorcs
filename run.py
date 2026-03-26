@@ -3,6 +3,7 @@ import console_app
 import threading
 import torcs_client
 import race_engineer
+import procedural_commentary
 import os
 
 run_chatbot, run_commentary = False, False
@@ -11,13 +12,18 @@ HELP = f"Usage: python3 run.py [args ...]\n\t--help: Display this message\n\t--c
 
 drive_thread = threading.Thread(target=torcs_client.drive_loop)
 chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
-#commentary_thread = 
+commentary_thread = threading.Thread(target=procedural_commentary.procedural_commentary_thread)
 
 def main():
   app = console_app.IBMTorcsApp(run_chatbot)
 
   drive_thread.start()
-  chatbot_thread.start()
+  
+  if run_chatbot:
+    chatbot_thread.start()
+  
+  if run_commentary:
+    commentary_thread.start()
 
   app.run()
 
