@@ -2,12 +2,33 @@ import ollama
 from ollama import ResponseError
 
 MODEL = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M' # Granite 4.0 Tiny
-AI_PROMPT = 'You are a race engineer. Keep to 1-3 small, simple sentences, response time is very important so keep it short. You will be provided with data from the car. Comment like you are a real engineer, do not talk in terms of variables or data.'
-AI_PROMPT2 = 'You are a race engineer. Do not talk about the simulation data, reply with simple english, response time matters so be as direct as possible whilst still forming proper sentences.'
-EXAMPLE_TELEMETRY = "{'angle': -2.74844, 'curLapTime': 21.028, 'damage': 285.0, 'distFromStart': 471.785, 'distRaced': 481.785, 'fuel': 93.6591, 'gear': 1.0, 'lastLapTime': 0.0, 'opponents': [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0], 'racePos': 1.0, 'rpm': 942.478, 'speedX': 0.0840397, 'speedY': -0.0265828, 'speedZ': 0.000484125, 'track': [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], 'trackPos': -7.46846, 'wheelSpinVel': [0.0, 0.0, 0.0, 0.0], 'z': 0.338315, 'focus': [-1.0, -1.0, -1.0, -1.0, -1.0]}"
+AI_PROMPT = """You are a professional race engineer who is knowledgeable about racing.
+                Only answer questions related to racing.
+                Keep answers on the topic of racing.
+                Keep answers short, remember you are speaking to a racing driver.
+                Make sure your answers are a maximum of two small sentences.
+                """
+# AI_PROMPT = """You are a professional race engineer who is knowledgeable about racing.
+#                 Only answer questions related to racing.
+#                 Keep answers on the topic of racing.
+#                 Keep answers short, remember you are speaking to a racing driver.
+#                 Make sure your answers are a maximum of two small sentences.
+#                 Damage points should be close to 0.
+#                 Centering is how the car is positioned on the track.
+#                 If the centering value is greater than or equal to one OR the centering value is less than or equal to negative one, the car is off the track.
+#                 """
+#AI_PROMPT2 = 'You are a race engineer. Do not talk about the simulation data, reply with simple english, response time matters so be as direct as possible whilst still forming proper sentences.'
+#EXAMPLE_TELEMETRY = "{'angle': -2.74844, 'curLapTime': 21.028, 'damage': 285.0, 'distFromStart': 471.785, 'distRaced': 481.785, 'fuel': 93.6591, 'gear': 1.0, 'lastLapTime': 0.0, 'opponents': [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0], 'racePos': 1.0, 'rpm': 942.478, 'speedX': 0.0840397, 'speedY': -0.0265828, 'speedZ': 0.000484125, 'track': [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], 'trackPos': -7.46846, 'wheelSpinVel': [0.0, 0.0, 0.0, 0.0], 'z': 0.338315, 'focus': [-1.0, -1.0, -1.0, -1.0, -1.0]}"
 
 
-def prompt_model(prompt, data):
+def prompt_model(prompt, telemetry):
+  curLapTime = telemetry['curLapTime']
+  damage = telemetry['damage']
+  gear = telemetry['gear']
+  lastLapTime = telemetry['lastLapTime']
+  curPos = telemetry['racePos']
+  speed = telemetry['speedX']
+  centering = telemetry['trackPos']
   response = ollama.chat(
     model=MODEL,
     messages=[
@@ -17,7 +38,7 @@ def prompt_model(prompt, data):
       },
       {
         'role': 'user',
-        'content': f'{prompt}\n{data}'
+        'content': f'{prompt}\ncurrent lap time in seconds is {curLapTime}\ncar damage points are {damage}\ncurrent gear is {gear}\nlast lap time in seconds was {lastLapTime}\nour current position is {curPos}\nour current speed is {speed}\n our current centering is {centering}'
       }
     ],
     stream=True
