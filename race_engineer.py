@@ -2,7 +2,8 @@ import ollama
 from httpx import ConnectError
 from torcs_client import telemetry
 import time
-from console_app import chatbot_request_queue, chatbot_queue, SECRET_QUIT_PHRASE
+from shared import chatbot_queue, chatbot_request_queue, SECRET_QUIT_PHRASE
+import queue
 
 GRANITE_TINY = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M'
 GRANITE_MICRO = 'hf.co/ibm-granite/granite-4.0-micro-GGUF:Q4_K_M'
@@ -40,11 +41,13 @@ def race_engineer_thread():
   running = True
   while running:
     time.sleep(0.1)
-    if not chatbot_request_queue.empty():
+    try:
       msg = chatbot_request_queue.get_nowait()
 
       if msg == SECRET_QUIT_PHRASE:
         running = False
       else:
-        chatbot_queue.put(msg)
+        chatbot_queue.put(prompt_model(msg, telemetry))
+    except queue.Empty:
+      continue
     

@@ -4,15 +4,8 @@ from textual.containers import VerticalScroll
 from textual.reactive import reactive
 from textual import events
 import queue
-import asyncio
 import datetime
-
-
-SECRET_QUIT_PHRASE = "__QUIT__"
-
-chatbot_queue = queue.Queue()
-chatbot_request_queue = queue.Queue()
-commentary_queue = queue.Queue()
+from shared import chatbot_queue, chatbot_request_queue, commentary_queue, SECRET_QUIT_PHRASE
 
 
 def get_formatted_timestamp():
@@ -59,21 +52,15 @@ class IBMTorcsApp(App):
       chatbot_request_queue.put(text)
 
 
-#"""
+"""
 
 import threading
 import race_engineer
 
 if __name__ == "__main__":
-  chatbot_queue.put("Check tyres")
-  commentary_queue.put("Fast off the line")
-  
   chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
   chatbot_thread.start()
 
   app = IBMTorcsApp()
   app.run() # Blocking btw
-
-  print(f"{list(chatbot_request_queue.queue)}\n{list(chatbot_queue.queue)}")
-
-#"""
+"""
