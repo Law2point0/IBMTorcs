@@ -542,7 +542,7 @@ def shift_gears(S):
 def traction_control(S, accel):
     if ENABLE_TRACTION_CONTROL:
         if ((S['wheelSpinVel'][2] + S['wheelSpinVel'][3]) - (S['wheelSpinVel'][0] + S['wheelSpinVel'][1])) > 2:
-            accel -= 0.1
+            accel -= 0.05
     return max(0.0, accel)
 
 def drive_to_speed(S, R, target_speed, brake_input): # Drives the car to the passed target speed and will also slow to the speed using the passed braking power
@@ -665,25 +665,28 @@ def drive_modular(c):
     if dist_bounds >= 2425 and dist_bounds < 2484: # turn 7 code
         turn_within_lines(S, R, 0.9, 0.3, 0.075)
         drive_to_speed(S, R, 25, 0.0)
-    if dist_bounds >= 2484 and dist_bounds < 2515: # turn 8 code
-        turn_to_corner(S, R, -0.8, 0.05)
+    if dist_bounds >= 2484 and dist_bounds < 2505: # turn 8 code
+        turn_to_corner(S, R, -0.8, 0.04)
         drive_to_speed(S, R, 30, 0.0)
-    if dist_bounds >= 2515 and dist_bounds < 2565: # straight to turn 9 1/2
-        turn_within_lines(S, R, -0.6, -0.99, 0.02)
+    if dist_bounds >= 2505 and dist_bounds < 2565: # straight to turn 9 1/2
+        R['steer'] = calculate_steering(S)
         steady_accel(S, R, TARGET_SPEED)
     if dist_bounds >= 2565 and dist_bounds < 2650: # straight to turn 9 2/2
         R['steer'] = calculate_steering(S)
-        drive_to_speed(S, R, 90, 0.3)
-    if dist_bounds >= 2650 and dist_bounds < 2700: # turn 9 code
+        drive_to_speed(S, R, 80, 0.3)
+    if dist_bounds >= 2650 and dist_bounds < 2740: # turn 9 code
+        turn_within_lines(S, R, 1, 0.5, 0.02)
+        R['accel'] = traction_control(S, R['accel'])
+        drive_to_speed(S, R, 80, 0.0)
+    if dist_bounds >= 2740 and dist_bounds < 2830: # straight to turn 10
+        turn_within_lines(S, R, 0.7, 0.3, 0.01)
+        steady_accel(S, R, TARGET_SPEED)
+    if dist_bounds >= 2830 and dist_bounds < 2900: # turn 10 prep
         R['steer'] = calculate_steering(S)
-        drive_to_speed(S, R, 90, 0.0)
-    if dist_bounds >= 2700 and dist_bounds < 2790: # straight to turn 10
-        drive_to_speed(S, R, TARGET_SPEED, 0.3)
-    if dist_bounds >= 2790 and dist_bounds < 2900: # turn 10 prep
-        drive_to_speed(S, R, 40, 0.3)
+        drive_to_speed(S, R, 50, 0.3)
     if dist_bounds >= 2900 and dist_bounds < 2960: # turn 10 code
-        turn_within_lines(S, R, -0.75, -0.99, 0.02)
-        drive_to_speed(S, R, 40, 0.0)
+        turn_within_lines(S, R, -0.7, -0.99, 0.001)
+        steady_accel(S, R, TARGET_SPEED)
     if dist_bounds >= 2960 and dist_bounds < 3050: # straight to turn 11
         turn_to_corner(S, R, 0.005, -0.8)
         drive_to_speed(S, R, TARGET_SPEED, 0.2)
