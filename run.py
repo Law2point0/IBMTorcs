@@ -7,8 +7,7 @@ import os
 
 run_chatbot, run_commentary = False, False
 
-FILENAME = "run2.py"
-HELP = f"Usage: python {FILENAME} [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n"
+HELP = f"Usage: python3 run.py [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n"
 
 drive_thread = threading.Thread(target=torcs_client.drive_loop)
 chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
