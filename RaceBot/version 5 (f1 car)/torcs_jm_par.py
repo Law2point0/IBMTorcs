@@ -575,7 +575,13 @@ def turn_within_lines (S, R, track_pos_L, track_pos_R, steer_angle):
         R['steer'] = steer
 
 def steady_accel(S, R, target_speed):
-    R['accel'] = calculate_throttle(S, R, target_speed) / 2
+    if S['speedX'] < target_speed:
+        R['accel'] = calculate_throttle(S, R, target_speed) / 2
+    else:
+        if S['speedX'] > target_speed:
+            R['accel'] = 0.0
+        else:
+            R['accel'] = 0.01
 
 def gradual_turn(S, R, target_angle):
     if S['angle'] < target_angle:
@@ -681,21 +687,27 @@ def drive_modular(c):
     if dist_bounds >= 2740 and dist_bounds < 2830: # straight to turn 10
         turn_within_lines(S, R, 0.7, 0.3, 0.01)
         steady_accel(S, R, TARGET_SPEED)
-    if dist_bounds >= 2830 and dist_bounds < 2900: # turn 10 prep
+    if dist_bounds >= 2830 and dist_bounds < 2870: # turn 10 prep
         R['steer'] = calculate_steering(S)
-        drive_to_speed(S, R, 50, 0.3)
-    if dist_bounds >= 2900 and dist_bounds < 2960: # turn 10 code
-        turn_within_lines(S, R, -0.7, -0.99, 0.001)
-        steady_accel(S, R, TARGET_SPEED)
-    if dist_bounds >= 2960 and dist_bounds < 3050: # straight to turn 11
-        turn_to_corner(S, R, 0.005, -0.8)
-        drive_to_speed(S, R, TARGET_SPEED, 0.2)
-    if dist_bounds >= 3150 and dist_bounds < 3235: # turn 11 prep
-        turn_to_corner(S, R, 0.02, -0.8)
-        drive_to_speed(S, R, 50, 0.2)
+        drive_to_speed(S, R, 100, 0.3)
+    if dist_bounds >= 2870 and dist_bounds < 3060: # turn 10 code
+        turn_within_lines(S, R, -0.3, -0.99, 0.03)
+        drive_to_speed(S, R, 100, 0.0)
+    if dist_bounds >= 3060 and dist_bounds < 3140: # straight to turn 11
+        turn_within_lines(S, R, -0.3, -0.8, 0.0025)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
+    if dist_bounds >= 3140 and dist_bounds < 3235: # turn 11 prep
+        turn_within_lines(S, R, -0.5, -0.99, 0.001)
+        drive_to_speed(S, R, 40, 0.3)
     if dist_bounds >= 3235 and dist_bounds < 3275: # turn 11 code
-        turn_to_corner(S, R, 0.7, 0.075)
-        drive_to_speed(S, R, 45, 0.1)
+        turn_to_corner(S, R, 0.7, 0.055)
+        drive_to_speed(S, R, 40, 0.0)
+    if dist_bounds >= 3275 and dist_bounds < 3600: # straight to finish line
+        R['steer'] = calculate_steering(S)
+        steady_accel(S, R, TARGET_SPEED)
+    if dist_bounds >= 3325 and dist_bounds < 3600: # straight to finish line
+        R['steer'] = calculate_steering(S)
+        drive_to_speed(S, R, TARGET_SPEED, 0.3)
     
     return
 
