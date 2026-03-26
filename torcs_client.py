@@ -95,7 +95,7 @@ class Client():
             sys.exit(-1)
         self.so.settimeout(1)
 
-        n_fail = 5
+        #n_fail = 5
         while True:
             a= "-45 -19 -12 -7 -4 -2.5 -1.7 -1 -.5 0 .5 1 1.7 2.5 4 7 12 19 45"
 
@@ -112,19 +112,20 @@ class Client():
             except socket.error as emsg:
                 #print("Waiting for server on %d............" % self.port)
                 #print("Count Down : " + str(n_fail))
-                if n_fail < 0:
+                #if n_fail < 0:
                     #print("relaunch torcs")
-                    os.system('pkill torcs')
-                    time.sleep(1.0)
-                    if self.vision is False:
-                        os.system('torcs -nofuel -nodamage -nolaptime &')
-                    else:
-                        os.system('torcs -nofuel -nodamage -nolaptime -vision &')
+                    #os.system('pkill torcs')
+                time.sleep(1.0)
+                    #if self.vision is False:
+                    #    os.system('torcs -nofuel -nodamage -nolaptime &')
+                    #else:
+                    #    os.system('torcs -nofuel -nodamage -nolaptime -vision &')
 
-                    time.sleep(1.0)
-                    os.system('sh autostart.sh')
-                    n_fail = 5
-                n_fail -= 1
+                    #time.sleep(1.0)
+                    #os.system('sh autostart.sh')
+                #    n_fail = 5
+                #n_fail -= 1
+                
 
             identify = '***identified***'
             if identify in sockdata:
@@ -501,17 +502,16 @@ def drive_example(c):
 # MODULAR DRIVE LOGIC WITH USER PARAMETERS  #
 #############################################
 
+from shared import server_data
 import race_bot
 
-telemetry = dict()
-
 def drive_loop():
-    global telemetry
+    global shared
     C = Client(p=3001)
     for _ in range(C.maxSteps, 0, -1):
         C.get_servers_input()
         race_bot.drive(C)
-        telemetry = C.S.d
+        shared = C.S.d
         C.respond_to_server()
     C.shutdown()
 

@@ -1,37 +1,32 @@
 import sys
+import console_app
+import threading
 import torcs_client
 import race_engineer
-import threading
+import os
 
-run_chatbot = False
-run_commentary = False
+run_chatbot, run_commentary = False, False
 
-driving_thread = threading.Thread(target=torcs_client.drive_loop)
+FILENAME = "run2.py"
+HELP = f"Usage: python {FILENAME} [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n"
 
-HELP = "Usage: python run.py [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n"
-
+drive_thread = threading.Thread(target=torcs_client.drive_loop)
+chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
+#commentary_thread = 
 
 def main():
-  if not run_commentary and not run_chatbot:
-    torcs_client.drive_loop()
-  else:
-    try:
-      driving_thread.start()
+  app = console_app.IBMTorcsApp(run_chatbot)
 
-      if run_chatbot:
-        while True:
-          prompt = input('Prompt: ')
-          data = torcs_client.telemetry
-          race_engineer.prompt_model(prompt, data)
-    except KeyboardInterrupt:
-      print('Exiting...')
+  drive_thread.start()
+  chatbot_thread.start()
 
-      driving_thread.join()
+  app.run()
+
+  os._exit(0)
 
 
-if __name__ == '__main__':
-  argv = sys.argv
-  argv.remove('run.py')
+if __name__ == "__main__":
+  argv = sys.argv[1:]
 
   if '--chatbot' in argv:
     argv.remove('--chatbot')

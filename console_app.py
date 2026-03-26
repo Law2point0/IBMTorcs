@@ -14,11 +14,18 @@ def get_formatted_timestamp():
 
 
 class IBMTorcsApp(App):
+  def __init__(self, chatbot_enabled, **kwargs):
+    super().__init__(**kwargs)
+    self.chatbot_enabled = chatbot_enabled
+
   def compose(self) -> ComposeResult:
     self.messages = VerticalScroll(id="messages")
     yield self.messages
 
-    self.input = Input(placeholder="Prompt the race engineer... (type 'quit' to quit)")
+    if self.chatbot_enabled:
+      self.input = Input(placeholder="Prompt the race engineer... (type 'quit' to quit)")
+    else:
+      self.input = Input(placeholder="Type 'quit' to quit.")
     yield self.input
 
   async def on_mount(self):
@@ -46,21 +53,24 @@ class IBMTorcsApp(App):
       await self.add_message(f"{get_formatted_timestamp()}  > {text}\nQuiting...")
       await self.action_quit()
       return
-    elif text != "":
+    elif text != "" and self.chatbot_enabled:
       await self.add_message(f"{get_formatted_timestamp()}  > {text}")
       event.input.value = ""
       chatbot_request_queue.put(text)
 
 
-"""
+#"""
 
 import threading
 import race_engineer
+import os
 
 if __name__ == "__main__":
   chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
   chatbot_thread.start()
 
-  app = IBMTorcsApp()
+  app = IBMTorcsApp(True)
   app.run() # Blocking btw
-"""
+
+  os._exit(0)
+#"""
