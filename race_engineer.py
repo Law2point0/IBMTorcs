@@ -1,7 +1,7 @@
 import ollama
 from httpx import ConnectError
 import time
-from shared import chatbot_queue, chatbot_request_queue, SECRET_QUIT_PHRASE, server_data
+from shared import chatbot_queue, chatbot_request_queue, server_data
 import queue
 
 GRANITE_TINY = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M'
@@ -28,7 +28,7 @@ def prompt_model(prompt, data):
     )
 
     reply = response['message']['content']
-    print(f"[DEBUG] reply: {reply}")
+    # print(f"[DEBUG] reply: {reply}")
     return reply
   except ollama.ResponseError:
     print(f'Ollama error, make sure you have pulled granite using: ollama pull {MODEL}')
@@ -43,10 +43,13 @@ def race_engineer_thread():
     try:
       msg = chatbot_request_queue.get_nowait()
 
-      if msg == SECRET_QUIT_PHRASE:
+      if msg == 'quit':
         running = False
       else:
-        chatbot_queue.put(prompt_model(msg, server_data))
+        if not server_data:
+          chatbot_queue.put("Waiting for TORCS...")
+        else:
+          chatbot_queue.put(prompt_model(msg, server_data))
     except queue.Empty:
       continue
     

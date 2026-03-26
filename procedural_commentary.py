@@ -13,7 +13,5 @@ def procedural_commentary_thread():
       if server_data:
         last_server_data = server_data
         pass
-
-    if 
   
     last_server_data = server_data

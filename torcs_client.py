@@ -453,69 +453,46 @@ def destringify(s):
         else:
             return [destringify(i) for i in s]
 
-def drive_example(c):
-    '''This is only an example. It will get around the track but the
-    correct thing to do is write your own `drive()` function.'''
-    S,R= c.S.d,c.R.d
-    target_speed=160
+# TORCS client
 
-    R['steer']= S['angle']*25 / PI
-    R['steer']-= S['trackPos']*.25
-
-    R['accel'] = max(0.0, min(1.0, R['accel']))
-
-    if S['speedX'] < target_speed - (R['steer']*2.5):
-        R['accel']+= .4
-    else:
-        R['accel']-= .2
-    if S['speedX']<10:
-       R['accel']+= 1/(S['speedX']+.1)
-
-    if ((S['wheelSpinVel'][2]+S['wheelSpinVel'][3]) -
-       (S['wheelSpinVel'][0]+S['wheelSpinVel'][1]) > 2):
-       R['accel']-= 0.1
-
-    R['gear']=1
-    if S['speedX']>60:
-        R['gear']=2
-    if S['speedX']>100:
-        R['gear']=3
-    if S['speedX']>140:
-        R['gear']=4
-    if S['speedX']>190:
-        R['gear']=5
-    if S['speedX']>220:
-        R['gear']=6
-    return
-
-'''if __name__ == "__main__":
-    C= Client(p=3001)
-    for step in range(C.maxSteps,0,-1):
-        C.get_servers_input()
-        drive_example(C)
-        C.respond_to_server()
-    C.shutdown()'''
-
-
-
-#############################################
-# MODULAR DRIVE LOGIC WITH USER PARAMETERS  #
-#############################################
-
-from shared import server_data
+import shared
 import race_bot
+import telemetry_logging
 
-def drive_loop():
-    global shared
-    C = Client(p=3001)
-    for _ in range(C.maxSteps, 0, -1):
-        C.get_servers_input()
-        race_bot.drive(C)
-        shared = C.S.d
-        C.respond_to_server()
-    C.shutdown()
+def torcs_client_thread():
+    try:
+        C = Client(p=3001)
 
-# ================= MAIN LOOP =================
+        log_interval_sec = 1.0
+        next_log_time = log_interval_sec
 
-if __name__ == "__main__":
-    drive_loop()
+        handle = None
+
+        if shared.run_telemetry:
+            handle = open(f"telemetry/{telemetry_logging.log_file_name()}.csv", "w", newline="")
+            writer_state = (None, handle)
+
+        for _ in range(C.maxSteps, 0, -1):
+            C.get_servers_input()
+            if shared.run_telemetry:
+                writer_state, next_log_time = telemetry_logging.log_telemetry(
+                    C.S.d,
+                    C.R.d,
+                    writer_state,
+                    next_log_time,
+                    log_interval_sec
+                )
+            race_bot.drive(C)
+            shared.server_data.update(C.S.d)
+            C.respond_to_server()
+        C.shutdown()
+
+        if handle:
+            handle.close()
+    except Exception as e:
+        import traceback
+        with open("crash.log", "w") as f:
+            traceback.print_exc(file=f)
+
+#if __name__ == "__main__":
+#    torcs_client_thread()

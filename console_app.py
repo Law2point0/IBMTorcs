@@ -5,7 +5,7 @@ from textual.reactive import reactive
 from textual import events
 import queue
 import datetime
-from shared import chatbot_queue, chatbot_request_queue, commentary_queue, SECRET_QUIT_PHRASE
+from shared import chatbot_queue, chatbot_request_queue, commentary_queue
 
 
 def get_formatted_timestamp():
@@ -47,9 +47,10 @@ class IBMTorcsApp(App):
 
   async def on_input_submitted(self, event: Input.Submitted):
     text = event.value
+    text = text.strip()
   
     if text == "quit":
-      chatbot_request_queue.put(SECRET_QUIT_PHRASE)
+      chatbot_request_queue.put(text)
       await self.add_message(f"{get_formatted_timestamp()}  > {text}\nQuiting...")
       await self.action_quit()
       return
