@@ -37,29 +37,26 @@ class IBMTorcsApp(App):
     self.messages.scroll_end()
 
   async def process_queues(self):
-    #while True:
-    #  await asyncio.sleep(0.1)
+    while not chatbot_queue.empty():
+      msg = chatbot_queue.get_nowait()
+      await self.add_message(f"{get_formatted_timestamp()} [cyan]Race Engineer[/cyan]: {msg}")
 
-      while not chatbot_queue.empty():
-        msg = chatbot_queue.get_nowait()
-        await self.add_message(f"{get_formatted_timestamp()} [cyan]Race Engineer[/cyan]: {msg}")
-
-      while not commentary_queue.empty():
-        msg = commentary_queue.get_nowait()
-        await self.add_message(f"{get_formatted_timestamp()} [magenta]Live Commentary[/magenta]: {msg}")
+    while not commentary_queue.empty():
+      msg = commentary_queue.get_nowait()
+      await self.add_message(f"{get_formatted_timestamp()} [magenta]Live Commentary[/magenta]: {msg}")
 
   async def on_input_submitted(self, event: Input.Submitted):
     text = event.value
-
+  
     if text == "quit":
       chatbot_request_queue.put(SECRET_QUIT_PHRASE)
       await self.add_message(f"{get_formatted_timestamp()}  > {text}\nQuiting...")
       await self.action_quit()
       return
-
-    await self.add_message(f"{get_formatted_timestamp()}  > {text}")
-    event.input.value = ""
-    chatbot_request_queue.put(text)
+    elif text != "":
+      await self.add_message(f"{get_formatted_timestamp()}  > {text}")
+      event.input.value = ""
+      chatbot_request_queue.put(text)
 
 
 #"""
@@ -74,8 +71,9 @@ if __name__ == "__main__":
   chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
   chatbot_thread.start()
 
-  app = IBMTorcsApp().run()
+  app = IBMTorcsApp()
+  app.run() # Blocking btw
 
-  chatbot_queue.put("Debug")
+  print(f"{list(chatbot_request_queue.queue)}\n{list(chatbot_queue.queue)}")
 
 #"""

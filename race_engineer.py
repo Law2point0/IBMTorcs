@@ -37,11 +37,14 @@ def prompt_model(prompt, data):
 
 
 def race_engineer_thread():
-  while True:
-    msg = chatbot_request_queue.get()
+  running = True
+  while running:
+    time.sleep(0.1)
+    if not chatbot_request_queue.empty():
+      msg = chatbot_request_queue.get_nowait()
 
-    if msg == SECRET_QUIT_PHRASE:
-      break
-    else:
-      chatbot_queue.put(msg)
+      if msg == SECRET_QUIT_PHRASE:
+        running = False
+      else:
+        chatbot_queue.put(msg)
     
