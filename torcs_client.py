@@ -482,7 +482,7 @@ def torcs_client_thread():
                     next_log_time,
                     log_interval_sec
                 )
-            race_bot.drive(C)
+            race_bot.drive_modular(C)
             shared.server_data.update(C.S.d)
             C.respond_to_server()
         C.shutdown()

@@ -8,7 +8,7 @@ GRANITE_TINY = 'hf.co/ibm-granite/granite-4.0-h-tiny-GGUF:Q4_K_M'
 GRANITE_MICRO = 'hf.co/ibm-granite/granite-4.0-micro-GGUF:Q4_K_M'
 
 MODEL = GRANITE_MICRO
-AI_PROMPT = 'You are a race engineer. Keep to 1-3 small, simple sentences, response time is very important so keep it short. You will be provided with data from the car. Comment like you are a real engineer, do not talk in terms of variables or data.'
+AI_PROMPT = 'You are a race engineer. Keep to 1-3 small, simple sentences, response time is very important so keep it short. You will be provided with data from the car. Comment like you are a real engineer, do not talk in terms of variables or data. Don\'t make assumptions, only comment on what you know.'
 
 
 def prompt_model(prompt, data):
