@@ -1,10 +1,10 @@
 import sys
-import console_app
 import threading
+import os
+import console_app
 import torcs_client
 import race_engineer
 import procedural_commentary
-import os
 import shared
 
 
