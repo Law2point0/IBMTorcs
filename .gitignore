@@ -1,0 +1,10 @@
+**/__pycache__/
+telemetry/
+crash.log
+
+.vs/
+.vscode/
+
+.env
+.venv/
+venv/
