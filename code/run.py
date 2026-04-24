@@ -6,9 +6,10 @@ import torcs_client
 import race_engineer
 import procedural_commentary
 import shared
+import train
 
 
-HELP = f"Usage: run.py [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n\t--telemetry: Save lap & track data from the race"
+HELP = f"Usage: run.py [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n\t--telemetry: Save lap & track data from the race\n\t--train: Only run the reinforcement learning mode"
 
 drive_thread = threading.Thread(target=torcs_client.torcs_client_thread)
 chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
@@ -44,8 +45,10 @@ if __name__ == "__main__":
     argv.remove('--telemetry')
     shared.run_telemetry = True
     os.makedirs("telemetry", exist_ok=True)
-  
-  if len(argv) != 0:
-    print(HELP)
+  if '--train' in argv:
+    train.train()
   else:
-    main()
+    if len(argv) != 0:
+      print(HELP)
+    else:
+      main()
