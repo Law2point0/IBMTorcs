@@ -34,8 +34,8 @@ For an in depth build guide visit [Building.md](https://github.com/Law2point0/IB
 ### Connecting UDP Features
 1. Open a new Terminal
 2. Navigate to gym_torcs path
-3. run `py run.py`
->(for rules based implementation `run RBrun.py`)
+3. run `py run.py` with the optional flags of --commentary --chatbot --telemetry
+>(for rules based implementation `run run.py --rb`)
 
 ## Contributors
 
