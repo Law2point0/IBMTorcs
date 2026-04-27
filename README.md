@@ -41,6 +41,6 @@ For an in depth build guide visit [Building.md](https://github.com/Law2point0/IB
 
 This was a group effort from the Ga-SHU Racing student group from Sheffield Hallam University
 
-**[Contributors](https://github.com/RichardLitt/standard-readme/graphs/contributors)**
+**[Contributors](https://github.com/Law2point0/IBMTorcs/graphs/contributors)**
 
 
