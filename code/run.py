@@ -1,15 +1,15 @@
 import sys
-import threading
-import os
 import console_app
+import threading
 import torcs_client
+import inference_client
 import race_engineer
 import procedural_commentary
+import os
 import shared
-import train
 
 
-HELP = f"Usage: run.py [args ...]\n\t--help: Display this message\n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n\t--telemetry: Save lap & track data from the race\n\t--train: Only run the reinforcement learning mode"
+HELP = f"Usage: run.py [args ...]\n\t--help: Display this message\n\t--rb: Run with the Rules Based Client (More Consistent) \n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n\t--telemetry: Save lap & track data from the race"
 
 drive_thread = threading.Thread(target=torcs_client.torcs_client_thread)
 chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
@@ -18,6 +18,11 @@ commentary_thread = threading.Thread(target=procedural_commentary.procedural_com
 
 def main():
   app = console_app.IBMTorcsApp(shared.run_chatbot)
+
+  if shared.run_rb:
+    drive_thread = threading.Thread(target=torcs_client.torcs_client_thread)
+  else:
+    drive_thread = threading.Thread(target=inference_client.inference_client_thread)
 
   drive_thread.start()
   
@@ -35,6 +40,9 @@ def main():
 if __name__ == "__main__":
   argv = sys.argv[1:]
 
+  if '--rb' in argv:
+    argv.remove('--rb')
+    shared.run_rb = True
   if '--chatbot' in argv:
     argv.remove('--chatbot')
     shared.run_chatbot = True
@@ -45,10 +53,8 @@ if __name__ == "__main__":
     argv.remove('--telemetry')
     shared.run_telemetry = True
     os.makedirs("telemetry", exist_ok=True)
-  if '--train' in argv:
-    train.train()
+  
+  if len(argv) != 0:
+    print(HELP)
   else:
-    if len(argv) != 0:
-      print(HELP)
-    else:
-      main()
+    main()
