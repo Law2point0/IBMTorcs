@@ -6,4 +6,4 @@ commentary_queue = queue.Queue()
 
 server_data = dict()
 
-run_chatbot, run_commentary, run_telemetry = False, False, False
+run_chatbot, run_commentary, run_telemetry, run_rb = False, False, False, False

@@ -4,6 +4,10 @@ import getopt
 import os
 import time
 
+from runtime import shared
+from runtime import race_bot
+from runtime import telemetry_logging
+
 PI= 3.14159265359
 
 data_size = 2**17
@@ -455,10 +459,6 @@ def destringify(s):
 
 # TORCS client
 
-import shared
-import race_bot
-import telemetry_logging
-
 def torcs_client_thread():
     try:
         C = Client(p=3001)
@@ -482,7 +482,7 @@ def torcs_client_thread():
                     next_log_time,
                     log_interval_sec
                 )
-            race_bot.drive_modular(C)
+            race_bot.drive(C)
             shared.server_data.update(C.S.d)
             C.respond_to_server()
         C.shutdown()

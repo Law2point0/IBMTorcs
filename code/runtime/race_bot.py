@@ -1,3 +1,7 @@
+#############################################
+# MODULAR DRIVE LOGIC WITH USER PARAMETERS  #
+#############################################
+
 import math
 
 # ================= USER CONFIGURABLE PARAMETERS =================
@@ -85,7 +89,7 @@ def gradual_turn(S, R, target_angle):
         R['steer'] = steer
 # ================= MAIN DRIVE FUNCTION =================
 
-def drive_modular(c):
+def drive(c):
     S, R = c.S.d, c.R.d
 
     # `get_servers_input` normalizes `S['distRaced']` per lap, so use it directly

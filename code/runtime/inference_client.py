@@ -1,14 +1,16 @@
 import torch
+import os
 import numpy as np
-from snakeoil import Client
-from actor import Actor
-import shared
-import telemetry_logging
+from utils.snakeoil import Client
+from training.networks.actor import Actor
+from runtime import shared
+from runtime import telemetry_logging
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+CHECKPOINT_PATH = os.path.join(os.path.dirname(__file__), '..', 'training', 'checkpoints', 'latest.pt')
+checkpoint = torch.load(CHECKPOINT_PATH, map_location=device)
 
 actor = Actor(obs_dim=30, action_dim=2).to(device)
-checkpoint = torch.load('checkpoints/latest.pt', map_location=device)
 actor.load_state_dict(checkpoint['actor'])
 actor.eval()
 print(f"Loaded Inference model succesfully on {device}")

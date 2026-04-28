@@ -1,7 +1,7 @@
 import ollama
 from httpx import ConnectError
 import time
-from shared import commentary_queue, server_data     
+from runtime.shared import commentary_queue, server_data 
 
 last_server_data = dict()   
 talking_points = []
@@ -11,7 +11,7 @@ GRANITE_MICRO = 'hf.co/ibm-granite/granite-4.0-micro-GGUF:Q4_K_M'
 
 MODEL = GRANITE_MICRO
 AI_PROMPT = (
-  'You are an enthusiastic motorsport TV commentator. '
+  'You are an enthusiastic motorsport TV commentator; Watching a single F1 car race around thetarck. No Opponents. '
   'You will receive a list of notable events that just happened over the last 5-6 seconds of a race. '
   'Give 1-3 short, punchy sentences of live commentary as if talking to a TV audience. '
   'Speak naturally - do not recite numbers or event names, just describe the drama'
@@ -25,7 +25,7 @@ AI_PROMPT = (
 )
       
 sampleInterval = 0.1
-windowSeconds = 9
+windowSeconds = 6.5
 windowSamples = int(windowSeconds / sampleInterval)
 
 # Thresholds for change detection

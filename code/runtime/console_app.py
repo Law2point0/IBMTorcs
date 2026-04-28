@@ -5,7 +5,8 @@ from textual.reactive import reactive
 from textual import events
 import queue
 import datetime
-from shared import chatbot_queue, chatbot_request_queue, commentary_queue
+from runtime import shared
+from runtime.shared import chatbot_queue, chatbot_request_queue, commentary_queue
 
 
 def get_formatted_timestamp():
