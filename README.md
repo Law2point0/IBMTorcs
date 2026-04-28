@@ -35,7 +35,7 @@ For an in depth build guide visit [Building.md](https://github.com/Law2point0/IB
 1. Open a new Terminal
 2. Navigate to gym_torcs path
 3. run `py run.py` with the optional flags of --commentary --chatbot --telemetry
->(for rules based implementation `run run.py --rb`)
+>(for rules based implementation run `run.py --rb` and to continue training `run.py --train`)
 
 ## Contributors
 
