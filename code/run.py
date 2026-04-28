@@ -1,15 +1,17 @@
 import sys
-import console_app
-import threading
-import torcs_client
-import inference_client
-import race_engineer
-import procedural_commentary
 import os
-import shared
+import threading
+from training import train
+from runtime import console_app
+from runtime import torcs_client
+from runtime import inference_client
+from runtime import race_engineer
+from runtime import procedural_commentary
+from runtime import shared
 
+sys.path.insert(0, os.path.dirname(__file__))
 
-HELP = f"Usage: run.py [args ...]\n\t--help: Display this message\n\t--rb: Run with the Rules Based Client (More Consistent) \n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n\t--telemetry: Save lap & track data from the race"
+HELP = f"Usage: run.py [args ...]\n\t--help: Display this message\n\t--rb: Run with the Rules Based Client (More Consistent) \n\t--chatbot: Run with the Race Engineer/chatbot\n\t--commentary: Run with the live procedural commentary\n\t--telemetry: Save lap & track data from the race\n\t--train: Only run the reinforcement learning mode"
 
 drive_thread = threading.Thread(target=torcs_client.torcs_client_thread)
 chatbot_thread = threading.Thread(target=race_engineer.race_engineer_thread)
@@ -53,6 +55,8 @@ if __name__ == "__main__":
     argv.remove('--telemetry')
     shared.run_telemetry = True
     os.makedirs("telemetry", exist_ok=True)
+  if '--train' in argv:
+    train.train()
   
   if len(argv) != 0:
     print(HELP)
